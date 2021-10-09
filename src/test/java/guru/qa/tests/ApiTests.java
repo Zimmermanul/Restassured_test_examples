@@ -1,19 +1,9 @@
 package guru.qa.tests;
 
-import com.sun.tools.javac.util.List;
-import guru.qa.models.UserData;
-import guru.qa.models.User;
-import io.restassured.common.mapper.TypeRef;
-import org.junit.jupiter.api.Test;
-
-
-import java.util.ArrayList;
-import java.util.Map;
 import com.github.javafaker.Faker;
-
+import guru.qa.models.User;
 import guru.qa.models.UserData;
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,17 +11,12 @@ import org.junit.jupiter.api.Test;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
-import java.util.TimeZone;
 
+import static io.restassured.RestAssured.get;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.core.Is.is;
-import static io.restassured.RestAssured.*;
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
 public class ApiTests {
