@@ -1,3 +1,3 @@
 Tests for Regres.in
 
-Using AssertJ
+Using: REST Assured, AssertJ, Java Faker
