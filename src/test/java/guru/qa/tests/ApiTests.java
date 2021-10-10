@@ -4,7 +4,6 @@ import com.github.javafaker.Faker;
 import guru.qa.models.User;
 import guru.qa.models.UserData;
 import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
 import org.json.JSONObject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,9 +11,10 @@ import org.junit.jupiter.api.Test;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Optional;
+import java.util.TimeZone;
 
-import static io.restassured.RestAssured.get;
-import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.*;
+import static io.restassured.http.ContentType.JSON;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.core.Is.is;
@@ -28,6 +28,7 @@ public class ApiTests {
     private String name = faker.name().firstName();
     private String job = faker.job().position();
     private String email = faker.internet().emailAddress();
+    private String password = faker.internet().password();
 
     JSONObject userData = new JSONObject()
             .put("name", this.name)
@@ -60,8 +61,9 @@ public class ApiTests {
         assertThat(ten.get().getFullName()).isEqualTo("Byron Fields");
         assertThat(ten.get().getEmail()).contains("@reqres.in");
     }
+
     @Test
-    void listOfResourceTest(){
+    void listOfResourceTest() {
         get("/unknown")
                 .then()
                 .statusCode(200)
@@ -79,7 +81,7 @@ public class ApiTests {
     @Test
     void createUserTest() {
         given()
-                .contentType(ContentType.JSON)
+                .contentType(JSON)
                 .body(this.userData.toString())
                 .when()
                 .post("/users")
@@ -89,4 +91,46 @@ public class ApiTests {
                 .body("job", equalTo(job))
                 .body("id", notNullValue());
     }
+
+    @Test
+    void negativeRegisterTest() {
+        JSONObject email = new JSONObject()
+                .put("email", this.email);
+
+        String response = given()
+                .contentType(JSON)
+                .body(email.toString())
+                .when()
+                .post("/register")
+                .then()
+                .statusCode(400)
+                .extract().response().jsonPath().getString("error");
+
+        assertThat(response).isEqualTo("Missing password");
+    }
+
+    @Test
+    void updateUserTest() {
+        this.formatDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+        String response = given()
+                .contentType(JSON)
+                .body(this.userData.toString())
+                .when()
+                .put("users/2")
+                .then()
+                .statusCode(200)
+                .extract().response().jsonPath().getString("updatedAt");
+        System.out.println(response);
+
+        assertThat(response).contains(formatDate.format(date));
+    }
+
+    @Test
+    void deleteTest() {
+        delete("/users/2")
+                .then()
+                .statusCode(204);
+    }
+
 }
